@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check HTML validity
+        run: |
+          npx html-validate "*.html"
+
+      - name: Check JavaScript syntax
+        run: |
+          npx eslint js/**/*.js --no-eslintrc --rule '{"no-undef":"warn","no-unused-vars":"warn"}'
+
+      - name: Check CSS validity
+        run: |
+          npx stylelint "css/**/*.css"
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://skillpilot.vercel.app/login.html
+            https://skillpilot.vercel.app/index.html
+            https://skillpilot.vercel.app/resume-analyzer.html
+          uploadArtifacts: true
+          temporaryPublicStorage: true
